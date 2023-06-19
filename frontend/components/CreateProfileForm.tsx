@@ -1,5 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Text, TextInput, Button } from "react-native";
+import { Gender, } from "./utils/CalaculateDietCalories";
+
 
 const CreateProfileForm = ({ navigation }) => {
   const [name, setName] = React.useState("");
