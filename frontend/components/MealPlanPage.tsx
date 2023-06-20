@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
-import { fetchMealPlan } from "../apis/api";
+import { StyleSheet, Text, View, Image, Button } from "react-native";
+import { fetchMealPlan, fetchRecipe, fetchRecipes } from "../apis/api";
 
 interface MealPlanData {
   meals: Array<object>;
@@ -9,7 +9,7 @@ interface MealPlanData {
   };
 }
 
-const MealPlan: React.FC = () => {
+const MealPlan: React.FC = ({navigation}) => {
   const [mealPlan, setMealPlan] = useState<MealPlanData[]>([]);
   const [planCalories, setPlanCalories] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -17,6 +17,7 @@ const MealPlan: React.FC = () => {
   let calorieRequirement: number = 1600; // data from CALCULATION RESULTS (using user inputs)
   let dietaryPref: string[] = []; // data from user input: none || vegetarian || vegan - if vegetarian, use vegan meal plan
   let intolerances: boolean = true || false; // data from user input: true || false - if any intols, use intol meal plan
+
 
   useEffect(() => {
     fetchMealPlan(calorieRequirement).then((weekPlan) => {
@@ -83,6 +84,12 @@ const MealPlan: React.FC = () => {
         Swipe to choose a different meal plan{"\n"}
         {'<<<<<'}
       </Text>
+      <View>
+        <Button
+          title="MealCard"
+          onPress={() => navigation.navigate("MealCard")}
+        />
+      </View>
     </View>
   );
 };
