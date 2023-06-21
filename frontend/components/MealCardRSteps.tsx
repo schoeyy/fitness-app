@@ -1,96 +1,41 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Button} from "react-native";
-import { useState } from "react";
+import { StyleSheet, Text, View, Image, Button } from "react-native";
 
+const ShowRecipe = ({ meal }) => {
+  const nutrtion = meal.nutrition.nutrients[0].amount;
 
-
-const ShowRecipe = ({ meal, navigation }) => {
-    const nutrtion = meal.nutrition.nutrients[0].amount;
-
-    const [ingredients, setIngredients] = useState<string>('');
-
+  const ingredients2 = meal.analyzedInstructions[0].steps
+    .flatMap((step) => step.ingredients)
+    .map((ingredient) => ingredient.name);
 
   return (
     <View style={styles.container}>
-      
-      
       <Text style={styles.title}>Meal Description</Text>
-      <Text>Meal</Text>
-      <Text>
-         <Image
-        source={{ uri: meal.image }}
-        style={styles.image}
-      /></Text>
       <Text>[{meal.title}]</Text>
       <Text>------------------------</Text>
-    
-      <Text>TOTAL CALORIES: {nutrtion}</Text>
-      <Text>------------------------</Text>
-      <Text>------------------------</Text>
-      <Text>Looks tasty? 😋 Click to save ❤️</Text>
-      <Text>------------------------</Text>
-      <Text style={{ textAlign: "center", textAlignVertical: "center" }}>
-        Don't fancy this one?{"\n"}
-        Swipe to choose a different meal plan{"\n"}
-        {'<<<<<'}
-      </Text>
-      <Text>
-  dishTypes:
-  {meal.dishTypes.map((type, index) => (
-    <Text key={index}> {type},</Text>
-  ))}
-</Text>
 
-      <Text>diets: {meal.diets}</Text>
-      <Text>readyInMinutes: {meal.readyInMinutes}</Text>
+      <View style={styles.recipeContainer}>
+        <Text style={styles.recipeHeader}>------------Recipe------------</Text>
 
+        <Text style={styles.ingredientsHeader}>Ingredients:</Text>
+        <Text style={styles.ingredients}>
+          {ingredients2.map((item, index) => `${item}\n\n`)}
+        </Text>
 
-      <Text>
-  Recipe:
-  {meal.analyzedInstructions.map((item) => (
-    item.steps.map((step, index) => (
-      <Text key={index}>
-          <Text>{"\n"}</Text>
-        <Text>Step: {step.number}</Text>
-        <Text>{"\n"}</Text>
-        <Text>{step.step}</Text>
-        <Text>{"\n\n"}</Text>
-        <Text>Ingredients: {step.ingredients.map((item, index) => (
-          <Text>
-                      <Text>{"\n"}</Text>
-                      <Text key={index}>{item.name}</Text>
-
+        {meal.analyzedInstructions.map((item) =>
+          item.steps.map((step, index) => (
+            <Text style={styles.step} key={index}>
+              Step: {step.number}
+              {"\n"}
+              {step.step}
             </Text>
-          ))}</Text>
-        <Text>{"\n"}</Text>
-      </Text>
-    ))
-  ))}
-</Text>
-
-
-
-<Text>Step: {meal.analyzedInstructions[0].steps[0].step}</Text>
-
-
-
-
-
-      <View>
-        <Button
-          title="ShowRecipe"
-          onPress={() => navigation.navigate("ShowRecipe")}
-        />
-
+          ))
+        )}
+      </View>
 
     </View>
-    </View>
-
-    );
-    };
-
-    
-
+  );
+};
 
 export default ShowRecipe;
 
@@ -105,6 +50,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
   },
+  recipeContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recipeHeader: {
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  ingredientsHeader: {
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  ingredients: {
+    textAlign: "center",
+  },
+  step: {
+    textAlign: "center",
+    marginTop: 16,
+  },
   image: {
     alignSelf: "center",
     width: 312,
@@ -112,5 +76,5 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: "center",
-  }
+  },
 });

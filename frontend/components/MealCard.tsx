@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Image, Button } from "react-native";
-import { fetchMealPlan, fetchRecipe} from "../apis/api";
+import { fetchRecipe} from "../apis/api";
 import ShowRecipe from './MealCardRSteps'
 
 
@@ -15,6 +15,12 @@ const MealPlan: React.FC = ({navigation}) => {
   const [meal, setMeal] = useState<MealPlanData[]>([]);
   const [planCalories, setPlanCalories] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [showRecip, setShowRecip] = useState<boolean>(false);
+
+  const handleShowRecipe = () => {
+    setShowRecip((prevshowRecip) => !prevshowRecip);
+  };
+
 
 
   let id = 660015;
@@ -48,33 +54,13 @@ console.log(meal)  // return a different plan (change state) if user swipes "don
 
   return (
     <View style={styles.container}>
-      <ShowRecipe meal={meal}/>
-     
-    </View>
-  );
-};
-
-export default MealPlan;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  text: {
-    textAlign: "center",
-  },
-});
-
-/*  <Text style={styles.title}>Meal Description</Text>
+      <Text style={styles.title}>Meal Description</Text>
       <Text>Meal</Text>
-      <Text>[insert image of breakfast item]</Text>
+      <Text>
+         <Image
+        source={{ uri: meal.image }}
+        style={styles.image}
+      /></Text>
       <Text>[{meal.title}]</Text>
       <Text>------------------------</Text>
     
@@ -99,41 +85,52 @@ const styles = StyleSheet.create({
       <Text>readyInMinutes: {meal.readyInMinutes}</Text>
 
 
-      <Text>
-  Recipe:
-  {meal.analyzedInstructions.map((item) => (
-    item.steps.map((step, index) => (
-      <Text key={index}>
-          <Text>{"\n"}</Text>
-        <Text>Step: {step.number}</Text>
-        <Text>{"\n"}</Text>
-        <Text>{step.step}</Text>
-        <Text>{"\n\n"}</Text>
-        <Text>Ingredients: {step.ingredients.map((item, index) => (
-          <Text>
-                      <Text>{"\n"}</Text>
-                      <Text key={index}>{item.name}</Text>
-
-            </Text>
-          ))}</Text>
-        <Text>{"\n"}</Text>
-      </Text>
-    ))
-  ))}
-</Text>
-
-
-
-<Text>Step: {meal.analyzedInstructions[0].steps[0].step}</Text>
-
-
-
-
+      <Text></Text>
+     
 
       <View>
         <Button
           title="ShowRecipe"
-          onPress={() => navigation.navigate("ShowRecipe")}
+          onPress={handleShowRecipe}
         />
       </View>
-*/
+      <View>
+    {showRecip ? <ShowRecipe meal={meal}/> : null}
+    {showRecip ? <View>
+        <Button
+          title="ShowRecipe"
+          onPress={handleShowRecipe}
+        />
+      </View> : null}
+
+    </View>
+
+
+     
+    </View>
+  );
+};
+
+export default MealPlan;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  text: {
+    textAlign: "center",
+  },
+  image: {
+    alignSelf: "center",
+    width: 312,
+    height: 231,
+  }
+});
+
