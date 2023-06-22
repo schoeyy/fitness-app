@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Button
 } from "react-native";
 import { fetchRecipe } from "../apis/api";
 
@@ -47,9 +48,65 @@ type Meal = {
   summary: string;
 };
 
+interface MealPlanData {
+  meals: Array<object>;
+  nutrients: {
+    calories: number;
+  };
+}
+
 const RecipeDetails: React.FC<Props> = ({ route, navigation }) => {
   const [mealDetails, setMealDetails] = useState<Meal | null>(null);
   const { mealId } = route.params;
+
+  const [changeMeal, setChangeMeal] = useState<boolean>(true);
+  const [newMeal, setNewMeal] = useState<MealPlanData[]>([]);
+  const [calories1, setCalories1] = useState<number>(0);
+
+  const handlechangeMeal = () => {
+    setChangeMeal((prevchangeMeal) => !prevchangeMeal);
+  };
+
+  const handlechangeMeal2 = async () => {
+    await mealDataF();
+  };
+  
+
+  const mealDataF = () => {
+    const apiKey = '0e7bf0adcd544121ae33b2fc870de23c';
+    const minCal = calories1 - 20;
+    const maxCal = calories1 + 20;
+    const url = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&addRecipeInformation=true&minCalories=${minCal}&maxCalories=${maxCal}`;
+
+    fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.results && data.results.length > 0) {
+        function getRandomInt(max) {
+          return Math.floor(Math.random() * max) + 1;
+        }
+        let x = getRandomInt(data.results.length);
+
+        setNewMeal(data.results[x]);
+        setMealDetails(data.results[x]);
+
+      } else {
+        console.error('No meal results found');
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching meal data:', error);
+    });
+};
+
+  useEffect(() => {
+    fetchRecipe(mealId).then((data) => {
+      setMealDetails(data.meal);
+      setCalories1(Math.round(data.meal.nutrition.nutrients[0].amount));
+    });
+  }, [mealId]);
+      
+
 
   useEffect(() => {
     fetchRecipe(mealId).then((data) => {
@@ -63,50 +120,59 @@ const RecipeDetails: React.FC<Props> = ({ route, navigation }) => {
     navigation.navigate("MealPlan");
   };
 
+  if (!mealDetails) return <Text>Loading...</Text>;
+
+  if (!mealDetails) return  calories1 = mealDetails.nutrition.nutrients[0].amount;
+  
+  
+
+
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <Text style={styles.title}>{mealDetails.title}</Text>
-        <Image style={styles.image} source={{ uri: mealDetails.image }} />
-        <View style={styles.mealIntro}>
-          <Text>Ready in: {mealDetails.readyInMinutes} minutes</Text>
-          <Text>Servings: {mealDetails.servings}</Text>
-          {mealDetails.nutrition.nutrients.map((nutrient, index) => (
-            <Text key={index}>
-              {nutrient.name}: {Math.round(nutrient.amount)} {nutrient.unit} per
-              serving
-            </Text>
-          ))}
-        </View>
-
-        <View style={styles.mealIntro}>
-          <Text style={styles.dietTitle}>Dietary Information:</Text>
-          {mealDetails.diets.map((diet, index) => (
-            <Text key={index}>
-              {diet.charAt(0).toUpperCase() + diet.slice(1)}
-            </Text>
-          ))}
-        </View>
-
-        {mealDetails.analyzedInstructions[0].steps.map((step: Step) => (
-          <View style={styles.mealIntro} key={step.number}>
-            <Text style={styles.stepTitle}>Step {step.number}</Text>
-            <Text>
-              {step.step.charAt(0).toUpperCase() + step.step.slice(1)}
-            </Text>
+      {mealDetails && (
+        <View>
+          <View>
+            <Button title="Change Meal" onPress={handlechangeMeal2} />
           </View>
-        ))}
-        <View style={styles.mealIntro}>
-          <Text style={styles.stepTitle}>Source:</Text>
-          <Text>{mealDetails.sourceUrl}</Text>
+          <Text style={styles.title}>{mealDetails.title}</Text>
+          <Image style={styles.image} source={{ uri: mealDetails.image }} />
+          <View style={styles.mealIntro}>
+            <Text>Ready in: {mealDetails.readyInMinutes} minutes</Text>
+            <Text>Servings: {mealDetails.servings}</Text>
+            {mealDetails.nutrition.nutrients.map((nutrient, index) => (
+              <Text key={index}>
+                {nutrient.name}: {Math.round(nutrient.amount)} {nutrient.unit} per serving
+              </Text>
+            ))}
+          </View>
+  
+          <View style={styles.mealIntro}>
+            <Text style={styles.dietTitle}>Dietary Information:</Text>
+            {mealDetails.diets.map((diet, index) => (
+              <Text key={index}>{diet.charAt(0).toUpperCase() + diet.slice(1)}</Text>
+            ))}
+          </View>
+  
+          {mealDetails.analyzedInstructions[0].steps.map((step: Step) => (
+            <View style={styles.mealIntro} key={step.number}>
+              <Text style={styles.stepTitle}>Step {step.number}</Text>
+              <Text>{step.step.charAt(0).toUpperCase() + step.step.slice(1)}</Text>
+            </View>
+          ))}
+          <View style={styles.mealIntro}>
+            <Text style={styles.stepTitle}>Source:</Text>
+            <Text>{mealDetails.sourceUrl}</Text>
+          </View>
+  
+          <TouchableOpacity style={styles.button} onPress={handleBack}>
+            <Text style={styles.buttonText}>Go back</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleBack}>
-        <Text style={styles.buttonText}>Go back</Text>
-      </TouchableOpacity>
+      )}
     </ScrollView>
   );
-};
+          }
+  
 
 export default RecipeDetails;
 
