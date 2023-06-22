@@ -16,11 +16,66 @@ const MealPlan: React.FC = ({navigation}) => {
   const [planCalories, setPlanCalories] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showRecip, setShowRecip] = useState<boolean>(false);
+  const [changeMeal, setChangeMeal] = useState<boolean>(true);
+  const [newMeal, setNewMeal] = useState<MealPlanData[]>([]);
+
+
+
+  const handlechangeMeal = () => {
+    setChangeMeal((prevchangeMeal) => !prevchangeMeal);
+  };
 
   const handleShowRecipe = () => {
     setShowRecip((prevshowRecip) => !prevshowRecip);
   };
 
+  const apiKey = 'adca97f4a5124de8960dfeb43821fb23';
+
+    useEffect(() => {
+      const calories = 200;
+      const minCal = calories - 20;
+      const maxCal = calories + 20;
+    // take meal call and set min max for request
+      // click button change meal swipe render new element change meal
+      function mealData() {
+        const url = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&addRecipeInformation=true&minCalories=${minCal}&maxCalories=${maxCal}`;
+    
+        return fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Data for target meal:', data);
+            console.log('Data 1111111:', data.results.length);
+            function getRandomInt(max) {
+              return Math.floor((Math.random() * max) + 1);
+            }
+            let x = getRandomInt(data.results.length)
+
+            console.log('Data 222222222:', data.results[0]);
+
+            setNewMeal(data.results[x])
+            
+            console.log(newMeal)
+
+            
+
+            console.log('Data 222222222:', getRandomInt(data.results.length));
+
+            //got 1 random meal
+            // output all required data
+
+
+            data.results.map((item) => {
+              console.log(item.title);
+              // Process the data for each target meal here
+            });
+          })
+          .catch((error) => {
+            console.error('Error fetching meal data:', error);
+          });
+      }
+    
+      mealData(); // Call the mealData function to trigger the API request
+    }, []);
 
 
   let id = 660015;
@@ -54,6 +109,10 @@ console.log(meal)  // return a different plan (change state) if user swipes "don
 
   return (
     <View style={styles.container}>
+          {changeMeal ? <Text>NewMeal{newMeal}</Text>: null}
+
+
+    <View style={styles.container}>
       <Text style={styles.title}>Meal Description</Text>
       <Text>Meal</Text>
       <Text>
@@ -61,6 +120,13 @@ console.log(meal)  // return a different plan (change state) if user swipes "don
         source={{ uri: meal.image }}
         style={styles.image}
       /></Text>
+      <View>
+        <Button
+          title="Change Meal"
+          onPress={handlechangeMeal}
+        />
+      </View>
+      
       <Text>[{meal.title}]</Text>
       <Text>------------------------</Text>
     
@@ -108,6 +174,8 @@ console.log(meal)  // return a different plan (change state) if user swipes "don
 
      
     </View>
+    </View>
+
   );
 };
 
@@ -118,19 +186,26 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "yellow",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
+    color: "black",
   },
-  text: {
+  calories: {
+    color: "black",
+  },
+  swipeText: {
     textAlign: "center",
+    textAlignVertical: "center",
+    color: "black",
   },
   image: {
     alignSelf: "center",
     width: 312,
     height: 231,
-  }
+  },
 });
 
